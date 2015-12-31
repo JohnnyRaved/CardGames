@@ -3,7 +3,7 @@ using System.Diagnostics;
 using PlayingCards;
 
 // ReSharper disable once CheckNamespace
-namespace Testing
+namespace PlayingCards
 {
     public class Program
     {

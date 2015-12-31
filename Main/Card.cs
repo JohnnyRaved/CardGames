@@ -8,7 +8,10 @@ namespace PlayingCards
         {
             Rank = r;
             Suit = s;
+            IsFaceDown = true;
         }
+
+        public bool IsFaceDown { get; private set; }
 
         public rank Rank { get; private set; }
 

@@ -1,17 +1,16 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayingCards;
 
-namespace PlayingCardTests
+namespace PlayingCards.Tests
 {
-    [TestClass]
-    public class Construction
-    {    
-         [TestMethod]
+    [TestClass()]
+    public class DeckTests
+    {
+        [TestMethod]
         public void NoArgs()
         {
-            var deck = new Deck();
+            var deck = new PlayingCards.Deck();
             Assert.IsNotNull(deck);
         }
 
@@ -31,10 +30,6 @@ namespace PlayingCardTests
             {
                 Deck deck = new Deck();
                 list.Add(deck);
-                foreach (var card in deck.Cards)
-                {
-                    Console.Write(card +", ");
-                }
             }
         }
     }

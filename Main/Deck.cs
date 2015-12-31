@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace PlayingCards
 {
+    /// <summary>
+    /// Standard deck of 52, shuffled cards.
+    /// </summary>
     [Serializable]
     public sealed class Deck 
     {
@@ -18,6 +21,9 @@ namespace PlayingCards
 
         public ConcurrentDictionary<int, Card> Cards { get; private set; }
 
+        /// <summary>
+        /// Instantiates, shuffles, and returns a deck of cards.
+        /// </summary>
         public Deck()
         {
             Cards = new ConcurrentDictionary<int, Card>(MaxThreads, NumberOfCards);
@@ -36,7 +42,10 @@ namespace PlayingCards
             }
             Shuffle(Cards);
         }
-
+        /// <summary>
+        /// Shuffles a deck of cards.
+        /// </summary>
+        /// <param name="deck"></param>
         private void Shuffle(ConcurrentDictionary<int, Card> deck)
         {
             if (deck != null)
