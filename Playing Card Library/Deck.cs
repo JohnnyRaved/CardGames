@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +12,10 @@ namespace PlayingCards
         void Shuffle(ConcurrentDictionary<int, Card> T);
     }
 
-
+    /// <summary>
+    /// Creates and manages a deck of 52 playing cards.
+    /// The key for each card is unique within each deck.
+    /// </summary>
     [Serializable]
     public class Deck : IShuffle
     {
@@ -21,6 +23,8 @@ namespace PlayingCards
         public static readonly List<rank> Ranks = new List<rank>(Enum.GetValues(typeof(rank)).Cast<rank>());
 
         public ConcurrentDictionary<int, Card> Cards { get; private set; }
+        private Object dealLock = new Object();
+
 
         /// <summary>
         /// Instantiates, shuffles, and returns a deck of cards.
@@ -46,6 +50,10 @@ namespace PlayingCards
             ((IShuffle)this).Shuffle(Cards);
         }
 
+        /// <summary>
+        /// Shuffles a deck of cards.
+        /// </summary>
+        /// <param name="T"> A Deck of cards</param>
         void IShuffle.Shuffle(ConcurrentDictionary<int, Card> T)
         {
             if (T != null)
@@ -76,21 +84,26 @@ namespace PlayingCards
             Debug.Assert(Cards != null, "ERROR: Cards is null upon invocation of Deck.Deal");
             if (Cards.Count < cardsNeeded) throw new ArgumentOutOfRangeException();
 
-            var valueFound = new Card(rank.Ace, suit.Club); //Card value is not used
+            var valueFound = new Card(rank.Ace, suit.Club); // Card value is not used
 
-            var KeyCollection = Cards.Keys.Take(cardsNeeded);
-            foreach (var key in KeyCollection)
+            lock (dealLock) // Object private to Deck
             {
-                if (Cards.TryRemove(key, out valueFound))
+                IEnumerable<int> KeyCollection = Cards.Keys.Take(cardsNeeded);
+                foreach (var key in KeyCollection)
                 {
-                    if (!hand.TryAdd(key, valueFound))
+                    if (Cards.TryRemove(key, out valueFound))
                     {
-                        Debug.WriteLine("WARNING: TryAdd failed when adding card to Cards");
+                        if (!hand.TryAdd(key, valueFound))
+                        {
+                            Debug.WriteLine("WARNING: TryAdd failed when adding card to Cards");
+                        }
                     }
-                } else Debug.WriteLine("WARNING: TryRemove failed when removing card from Cards");
+                    else Debug.WriteLine("WARNING: TryRemove failed when removing card from Cards");
+                }
             }
             return hand;
         }
+    }
 }
 
 
