@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,7 +8,7 @@ namespace PlayingCards
 
     public interface IShuffle
     {
-        void Shuffle(ConcurrentDictionary<int, Card> T);
+        void Shuffle(Dictionary<int, Card> T);
     }
 
     /// <summary>
@@ -22,28 +21,22 @@ namespace PlayingCards
         public static readonly List<suit> Suits = new List<suit>(Enum.GetValues(typeof(suit)).Cast<suit>());
         public static readonly List<rank> Ranks = new List<rank>(Enum.GetValues(typeof(rank)).Cast<rank>());
 
-        public ConcurrentDictionary<int, Card> Cards { get; private set; }
-        private Object dealLock = new Object();
-
+        public Dictionary<int, Card> Cards { get; private set; }
 
         /// <summary>
         /// Instantiates, shuffles, and returns a deck of cards.
         /// </summary>
         public Deck()
         {
-            const int MaxThreads = 2;
             const int NumberOfCards = 52;
-            Cards = new ConcurrentDictionary<int, Card>(MaxThreads, NumberOfCards);
+            Cards = new Dictionary<int, Card>(NumberOfCards);
 
             var cardIndex = 0;
             foreach (var s in Suits)
             {
                 foreach (var r in Ranks)
                 {
-                    if (!Cards.TryAdd(cardIndex, new Card(r, s)))
-                    {
-                        Debug.WriteLine("WARNING: TryAdd failed when adding card to Cards");
-                    }
+                    Cards.Add(cardIndex, new Card(r, s));
                     cardIndex++;
                 }
             }
@@ -54,7 +47,7 @@ namespace PlayingCards
         /// Shuffles a deck of cards.
         /// </summary>
         /// <param name="T"> A Deck of cards</param>
-        void IShuffle.Shuffle(ConcurrentDictionary<int, Card> T)
+        void IShuffle.Shuffle(Dictionary<int, Card> T)
         {
             if (T != null)
             {
@@ -79,27 +72,17 @@ namespace PlayingCards
         /// <param name="hand"> A subset of Cards used for play.</param>
         /// <param name="cardsNeeded"></param>
         /// <returns>hand with the number of cards needed (Requested)</returns>
-        public ConcurrentDictionary<int, Card> Deal(ConcurrentDictionary<int, Card> hand, int cardsNeeded)
+        public Dictionary<int, Card> Deal(Dictionary<int, Card> hand, int cardsNeeded)
         {
             Debug.Assert(Cards != null, "ERROR: Cards is null upon invocation of Deck.Deal");
             if (Cards.Count < cardsNeeded) throw new ArgumentOutOfRangeException();
 
-            var valueFound = new Card(rank.Ace, suit.Club); // Card value is not used
-
-            lock (dealLock) // Object private to Deck
+            List<int>availableKeys = new List<int>(cardsNeeded);
+            availableKeys.AddRange(Cards.Keys.Take(cardsNeeded));
+            foreach (var key in availableKeys)
             {
-                IEnumerable<int> KeyCollection = Cards.Keys.Take(cardsNeeded);
-                foreach (var key in KeyCollection)
-                {
-                    if (Cards.TryRemove(key, out valueFound))
-                    {
-                        if (!hand.TryAdd(key, valueFound))
-                        {
-                            Debug.WriteLine("WARNING: TryAdd failed when adding card to Cards");
-                        }
-                    }
-                    else Debug.WriteLine("WARNING: TryRemove failed when removing card from Cards");
-                }
+                hand.Add(key, Cards[key]);
+                Cards.Remove(key);
             }
             return hand;
         }
