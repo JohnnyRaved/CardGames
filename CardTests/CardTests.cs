@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Concurrent;
 using System;
+using System.Collections.Generic;
 
 namespace PlayingCards.Tests
 {
@@ -36,7 +37,7 @@ namespace PlayingCards.Tests
         {
             // Arrange
             var newDeck = new Deck();
-            var hand = new ConcurrentDictionary<int, Card>();
+            var hand = new Dictionary<int, Card>();
 
             // Act
             hand = newDeck.Deal(hand,5);
@@ -52,7 +53,7 @@ namespace PlayingCards.Tests
         {
             // Arrange
             var newDeck = new Deck();
-            var hand = new ConcurrentDictionary<int, Card>();
+            var hand = new Dictionary<int, Card>();
 
             // Act
             hand = newDeck.Deal(hand, 53);
@@ -65,7 +66,7 @@ namespace PlayingCards.Tests
         {
             // Arrange
             var newDeck = new Deck();
-            var hand = new ConcurrentDictionary<int, Card>();
+            var hand = new Dictionary<int, Card>();
 
             // Act
             hand = newDeck.Deal(hand, 5);
