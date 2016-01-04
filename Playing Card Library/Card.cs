@@ -21,7 +21,7 @@ namespace PlayingCards
         /// <summary>
         /// Indicates whether a card is visible to the player.
         /// </summary>
-        public bool IsFaceDown { get; private set; }
+        public bool IsFaceDown { get; internal set; }
 
         public rank Rank { get; private set; }
 

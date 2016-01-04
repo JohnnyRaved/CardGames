@@ -16,7 +16,7 @@ namespace PlayingCards
     /// The key for each card is unique within each deck.
     /// </summary>
     [Serializable]
-    public class Deck : IShuffle
+    public sealed class Deck : IShuffle
     {
         public static readonly List<suit> Suits = new List<suit>(Enum.GetValues(typeof(suit)).Cast<suit>());
         public static readonly List<rank> Ranks = new List<rank>(Enum.GetValues(typeof(rank)).Cast<rank>());
@@ -77,8 +77,9 @@ namespace PlayingCards
             Debug.Assert(Cards != null, "ERROR: Cards is null upon invocation of Deck.Deal");
             if (Cards.Count < cardsNeeded) throw new ArgumentOutOfRangeException();
 
-            List<int>availableKeys = new List<int>(cardsNeeded);
+            List<int> availableKeys = new List<int>(cardsNeeded);
             availableKeys.AddRange(Cards.Keys.Take(cardsNeeded));
+
             foreach (var key in availableKeys)
             {
                 hand.Add(key, Cards[key]);
